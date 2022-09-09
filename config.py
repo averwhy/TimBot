@@ -1,0 +1,2 @@
+TOKEN = ""
+COGS = ["cogs.ticketing"]
