@@ -5,15 +5,34 @@ from discord.ext import commands
 class Ticketing(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
-    
-  @app_commands.command(name="command-1")
-  async def my_command(self, interaction: discord.Interaction) -> None:
-    await interaction.response.send_message("Hello from command 1!", ephemeral=True)
+  
+  @commands.command()
+  async def solved(self, ctx):
+    """Marks a ticket as solved and closes it. Only works in tickets."""
+    pass
+  
+  group = app_commands.Group(name="ticket", description="Parent ticket command")
 
-  @app_commands.command(name="command-2")
-  #@app_commands.guilds(discord.Object(id=...), ...)
-  async def my_private_command(self, interaction: discord.Interaction) -> None:
-    await interaction.response.send_message("Hello from private command!", ephemeral=True)
+  @group.command(name='setup')
+  async def setup(self, interaction: discord.Interaction) -> None:
+    """Sets up a ticketing system within the channel that this command was run"""
+    from cogs.utils.views import TicketView
+    embed = discord.Embed(title="Support Ticket",
+    description="Need help? Click the button below to open a ticket!",
+    color=discord.Color.green())
+    tview = TicketView()
+    await interaction.response.send_message(embed=embed, view=tview)
+    
+  @group.command(name="list")
+  async def _list(self, interaction: discord.Interaction) -> None:
+    """View list of tickets"""
+    await interaction.response.send_message("-list of tickets-", ephemeral=False)
+
+  @group.command(name="search")
+  @app_commands.describe(id="The ticket ID to search for")
+  async def search(self, interaction: discord.Interaction, id: int) -> None:
+    """Searches all tickets for specified parameter"""
+    await interaction.response.send_message(f"ID specified: {id}", ephemeral=False)
 
 async def setup(bot: commands.Bot) -> None:
-    await bot.add_cog(Ticketing(bot))
+  await bot.add_cog(Ticketing(bot))
