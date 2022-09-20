@@ -3,5 +3,7 @@
 /lib
 /lib64
 /__pycache__
+/cogs/utils/__pycache__
 pyvenv.cfg
-config.py 
+config.py
+*.pyc

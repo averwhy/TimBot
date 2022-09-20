@@ -14,4 +14,14 @@ class TimBot(commands.Bot):
         self.tree.copy_global_to(guild=TESTING)
         await self.tree.sync(guild=TESTING)
         
-        self.add_view(TicketView())
+        self.add_view(TicketView()) # persistent ticket views
+
+    async def create_ticket(self, ctx: commands.Context):
+        """Creates a ticket internally."""
+        #async with self.db.pool.acquire() as con:
+            #await con.execute("")
+        pass
+    
+    async def inside_ticket(self, ctx: commands.Context):
+        """Check if the context's channel is inside of a ticket."""
+        pass #TODO: make this a method

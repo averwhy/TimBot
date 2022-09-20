@@ -18,8 +18,9 @@ class Ticketing(commands.Cog):
     """Sets up a ticketing system within the channel that this command was run"""
     from cogs.utils.views import TicketView
     embed = discord.Embed(title="Support Ticket",
-    description="Need help? Click the button below to open a ticket!",
-    color=discord.Color.green())
+      description="Need help? Click the button below to open a ticket!",
+      color=discord.Color.green()
+    )
     tview = TicketView()
     await interaction.response.send_message(embed=embed, view=tview)
     
