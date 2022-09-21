@@ -6,10 +6,11 @@ class Ticketing(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
   
-  @commands.command()
+  @commands.command(aliases=['close'])
   async def solved(self, ctx):
     """Marks a ticket as solved and closes it. Only works in tickets."""
-    pass
+    if not await self.bot.is_ticket(ctx):
+      return # Not in a ticket, so ignore
   
   group = app_commands.Group(name="ticket", description="Parent ticket command")
 

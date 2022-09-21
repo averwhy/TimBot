@@ -4,9 +4,10 @@ class database:
     def __init__(self, pool: asyncpg.Pool):
         self.pool = pool
     
-    async def execute(self, query: str):
+    async def execute(self, query: str, *args) -> tuple:
         async with self.pool.acquire() as con:
-            await con.execute(query)
+            result = await con.execute(query, *args)
+        return result
     
     @staticmethod
     async def init(pool: asyncpg.Pool):
@@ -18,7 +19,8 @@ class database:
                 ownerid BIGINT,
                 threadid BIGINT,
                 created TIMESTAMP NOT NULL DEFAULT (current_timestamp AT TIME ZONE 'UTC'),
-                statuscode SMALLINT
+                statuscode SMALLINT,
+                closed_by BIGINT
                 )
             """) # This keeps track of all tickets
 
@@ -35,3 +37,9 @@ class database:
                 # button
                 # )
             # """)
+
+
+class ticket:
+    """Simple wrapper class to represent a ticket in the database"""
+    def __init__(self):
+        pass
