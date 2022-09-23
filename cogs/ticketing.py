@@ -13,8 +13,12 @@ class Ticketing(commands.Cog):
     if not await self.bot.is_ticket(ctx):
       return # Not in a ticket, so ignore
     
-    await self.bot.close_ticket()
+    if not isinstance(ctx.channel, discord.Thread):
+      print("The bot thought we were in a ticket however we are not in a thread!????")
+      return # Somethings wrong. we should be in a thread
+
     await ctx.message.add_reaction('✅')
+    await self.bot.close_ticket(ctx.channel, ctx.author)
   
   group = app_commands.Group(name="ticket", description="Parent ticket command")
 
@@ -27,7 +31,8 @@ class Ticketing(commands.Cog):
         color=discord.Color.green()
       )
       tview = TicketView(self.bot)
-      await interaction.response.send_message(embed=embed, view=tview, ephemeral=False)
+      msg = await interaction.response.send_message(embed=embed, view=tview, ephemeral=False)
+      await self.bot.add_ticket_button(msg, interaction.channel)
     except Exception as e:
       await interaction.response.send_message(f'ERROR! `{e}`', ephemeral=False)
     

@@ -9,6 +9,11 @@ class database:
             result = await con.execute(query, *args)
         return result
     
+    async def fetch(self, query: str, *args) -> tuple:
+        async with self.pool.acquire() as con:
+            result = await con.fetch(query, *args)
+        return result
+    
     @staticmethod
     async def init(pool: asyncpg.Pool):
         """First time initialization of a database."""

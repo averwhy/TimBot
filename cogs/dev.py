@@ -7,6 +7,10 @@ class Dev(commands.Cog):
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, after):
+        await self.bot.process_commands(after) # enable edit commands
     
     @commands.command(aliases=['shutdown','fuckoff','cease'])
     async def stop(self, ctx):

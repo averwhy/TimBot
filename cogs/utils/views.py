@@ -17,12 +17,14 @@ class TicketView(discord.ui.View):
 
     @discord.ui.button(label='Create Ticket', style=discord.ButtonStyle.green, custom_id='timbot:ticketcreate')
     async def create(self, interaction: discord.Interaction, button: discord.ui.Button):
-        #await interaction.response.send_message('This is green.', ephemeral=True)
         try:
+            if await self.bot.has_open_ticket(interaction.user):
+                return await interaction.response.send_message("You already have an open ticket!", ephemeral=True)
+
             new_thread = await interaction.channel.create_thread(name=f'Support ticket for {interaction.user.name}',type=discord.ChannelType.private_thread, reason=f'Support ticket opened by {str(interaction.user)} ({interaction.user.id})')
-            ticket_id = await self.bot.create_ticket(interaction.channel, new_thread, interaction.user)
-            embed = discord.Embed(title=f"Ticket #{ticket_id} - {str(interaction.user)}", description="Was your issue resolved? Use `?solved` to close the ticket.", color=discord.Color.green(), timestamp=discord.utils.utcnow())
+            ticket = await self.bot.create_ticket(interaction.channel, new_thread, interaction.user)
+            embed = discord.Embed(title=f"Ticket #{ticket['id']} - {str(interaction.user)}", description="Support staff will be with you shortly. In the meantime, describe your issue so we can help you!\nUse `?solved` to close the ticket.", color=discord.Color.green(), timestamp=discord.utils.utcnow())
             await new_thread.send(content=f"<@{SUPPORT_ROLE}> <@{interaction.user.id}>", embed=embed)
-            print(f"New ticket created by {str(interaction.user)}")
+            await interaction.response.send_message(f"Your ticket was created in <#{new_thread.id}>!", ephemeral=True)
         except Exception as e:
             await interaction.response.send_message(f"ERROR: {e}")

@@ -6,6 +6,7 @@ import config
 import os
 from bot import TimBot
 from cogs.utils.db import database
+from discord.ext import commands
 
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True" 
@@ -24,6 +25,8 @@ async def on_ready():
 
 @bot.event
 async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        return # ignore this error
     traceback.print_exception(type(error), error, error.__traceback__)
     return
 
