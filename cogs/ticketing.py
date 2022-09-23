@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from cogs.utils.views import TicketView
 
 class Ticketing(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
@@ -11,19 +12,24 @@ class Ticketing(commands.Cog):
     """Marks a ticket as solved and closes it. Only works in tickets."""
     if not await self.bot.is_ticket(ctx):
       return # Not in a ticket, so ignore
+    
+    await self.bot.close_ticket()
+    await ctx.message.add_reaction('✅')
   
   group = app_commands.Group(name="ticket", description="Parent ticket command")
 
   @group.command(name='setup')
   async def setup(self, interaction: discord.Interaction) -> None:
     """Sets up a ticketing system within the channel that this command was run"""
-    from cogs.utils.views import TicketView
-    embed = discord.Embed(title="Support Ticket",
-      description="Need help? Click the button below to open a ticket!",
-      color=discord.Color.green()
-    )
-    tview = TicketView()
-    await interaction.response.send_message(embed=embed, view=tview)
+    try:
+      embed = discord.Embed(title="Support Ticket",
+        description="Need help? Click the button below to open a ticket!",
+        color=discord.Color.green()
+      )
+      tview = TicketView(self.bot)
+      await interaction.response.send_message(embed=embed, view=tview, ephemeral=False)
+    except Exception as e:
+      await interaction.response.send_message(f'ERROR! `{e}`', ephemeral=False)
     
   @group.command(name="list")
   async def _list(self, interaction: discord.Interaction) -> None:

@@ -1,4 +1,4 @@
-from http.client import CONFLICT
+import traceback
 import discord
 import asyncio
 import asyncpg
@@ -21,6 +21,11 @@ bot = TimBot(intents=intents)
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     print('--------------------------------------------------')
+
+@bot.event
+async def on_command_error(ctx, error):
+    traceback.print_exception(type(error), error, error.__traceback__)
+    return
 
 async def main():
     if __name__ == "__main__":

@@ -11,23 +11,25 @@ class database:
     
     @staticmethod
     async def init(pool: asyncpg.Pool):
+        """First time initialization of a database."""
         async with pool.acquire() as con:
             await con.execute("""
                 CREATE TABLE IF NOT EXISTS tickets(
                 id serial PRIMARY KEY,
-                fromchannel BIGINT,
-                ownerid BIGINT,
-                threadid BIGINT,
+                fromchannel BIGINT NOT NULL,
+                ownerid BIGINT NOT NULL,
+                threadid BIGINT NOT NULL,
                 created TIMESTAMP NOT NULL DEFAULT (current_timestamp AT TIME ZONE 'UTC'),
-                statuscode SMALLINT,
-                closed_by BIGINT
+                statuscode SMALLINT NOT NULL DEFAULT 0,
+                closed TIMESTAMP,
+                closed_by BIGINT DEFAULT 0
                 )
             """) # This keeps track of all tickets
 
             await con.execute("""
                 CREATE TABLE IF NOT EXISTS ticket_messages(
-                channelid BIGINT,
-                messageid BIGINT
+                channelid BIGINT NOT NULL,
+                messageid BIGINT NOT NULL
                 )
             """) # This is so the bot can load the persistent view and listen for ticket creations
 

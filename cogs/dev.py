@@ -8,7 +8,7 @@ class Dev(commands.Cog):
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
     
-    @commands.command(aliases=['shutdown','fuckoff','close','cease'])
+    @commands.command(aliases=['shutdown','fuckoff','cease'])
     async def stop(self, ctx):
         await ctx.send("seeya")
         await self.bot.close()
