@@ -8,3 +8,9 @@
 ![Twitter Follow](https://img.shields.io/twitter/follow/SNHUesports?style=social)
 # TimBot
 Multipurpose Discord Bot for SNHU Esports Discord(s).
+
+## Features
+- Easy to use & simple thread ticketing system
+- Easy ticketing setup
+- PostgreSQL intregration
+- Regular commands & Slash commands
