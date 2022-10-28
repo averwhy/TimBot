@@ -22,19 +22,25 @@ class database:
                 CREATE TABLE IF NOT EXISTS tickets(
                 id serial PRIMARY KEY,
                 fromchannel BIGINT NOT NULL,
+                frommessage BIGINT NOT NULL,
+                firstmessage BIGINT,
                 ownerid BIGINT NOT NULL,
                 threadid BIGINT NOT NULL,
                 created TIMESTAMP NOT NULL DEFAULT (current_timestamp AT TIME ZONE 'UTC'),
                 statuscode SMALLINT NOT NULL DEFAULT 0,
                 closed TIMESTAMP,
-                closed_by BIGINT DEFAULT 0
+                closed_by BIGINT DEFAULT 0,
+                serverid BIGINT NOT NULL
                 )
             """) # This keeps track of all tickets
 
             await con.execute("""
                 CREATE TABLE IF NOT EXISTS ticket_messages(
                 channelid BIGINT NOT NULL,
-                messageid BIGINT NOT NULL
+                messageid BIGINT NOT NULL,
+                threadprefix VARCHAR(4),
+                rolestoping TEXT,
+                deleted BOOL NOT NULL DEFAULT false
                 )
             """) # This is so the bot can load the persistent view and listen for ticket creations
 
