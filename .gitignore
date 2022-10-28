@@ -7,3 +7,4 @@
 pyvenv.cfg
 config.py
 *.pyc
+nohup.out
