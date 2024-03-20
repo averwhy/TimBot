@@ -23,6 +23,7 @@ GGAUTH.txt
 *.toml
 cogs/minigames
 /migrations
+launcher.py
 cogs/admin.py
 cogs/buttons.py
 cogs/emoji.py

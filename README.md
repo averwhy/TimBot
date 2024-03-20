@@ -9,8 +9,11 @@
 # TimBot
 Multipurpose Discord Bot for SNHU Esports Discord(s).
 
+### Note
+This is an 'extension' to the [RoboDanny bot](https://github.com/Rapptz/RoboDanny), if you attempt to run TimBot alone it will not work. I have only committed files that I have heavily modified or made myself
+
 ## Features
 - Easy to use & simple thread ticketing system
 - Easy ticketing setup
-- PostgreSQL intregration
-- Regular commands & Slash commands
+- Regular commands & Slash commands support
+- GGLeap API Integration
