@@ -16,4 +16,4 @@ This is an 'extension' to the [RoboDanny bot](https://github.com/Rapptz/RoboDann
 - Easy to use & simple thread ticketing system
 - Easy ticketing setup
 - Regular commands & Slash commands support
-- GGLeap API Integration
+- GGLeap API Integration (WIP)
