@@ -11,7 +11,6 @@ import aiohttp
 import sys
 from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, Coroutine, Iterable, Optional, Union
 import typing
-from types import NoneType
 from collections import Counter, defaultdict
 
 import config
@@ -23,6 +22,8 @@ if TYPE_CHECKING:
 
 from cogs.utils.views import TicketView, SDTRuleView
 from config import ERROR_CHANNEL
+
+NoneType = type(None)
 
 
 description = """
@@ -105,7 +106,7 @@ class RoboTim(commands.AutoShardedBot):
             enable_debug_events=True,
         )
 
-        self.client_id: str = config.client_id
+        self.client_id = config.client_id
 
         # shard_id: List[datetime.datetime]
         # shows the last attempted IDENTIFYs and RESUMEs
@@ -163,7 +164,6 @@ class RoboTim(commands.AutoShardedBot):
     async def get_tickets(self, ticket_id: int = None, thread_id: int = None, closed_by: int = None, closed: bool = None) -> typing.Union[tuple, typing.List[tuple], None]:
         """Searches and returns a ticket based on specified parameters.\nIf no parameters are specified, it returns a `list` of all tickets.\nIf no tickets are found, `None` is returned."""
         results = []
-        result = None
         if ticket_id:
             result = await self.pool.fetch("SELECT * FROM tickets WHERE id = $1", ticket_id)
             if result: 
@@ -230,14 +230,14 @@ class RoboTim(commands.AutoShardedBot):
         result = await self.pool.fetch("SELECT threadprefix FROM ticket_messages WHERE messageid = $1", message_id)
         return result[0].get('threadprefix')
     
-    async def get_roles_to_ping(self, message_id: int) -> list:
+    async def get_roles_to_ping(self, message_id: int) -> Union[list, None]:
         """Gets a list of role ID's to ping, based on the ticket"""
         result = await self.pool.fetch("SELECT rolestoping FROM ticket_messages WHERE messageid = $1", message_id)
         if result[0].get('rolestoping') is None:
             return None
         return list(result[0].get('rolestoping').strip(',').split(','))
 
-    async def add_ticket_button(self, message: discord.InteractionResponse, channel: discord.TextChannel, ticket_prefix: str = '', roles: list = None):
+    async def add_ticket_button(self, message, channel: discord.TextChannel, ticket_prefix: str = '', roles: list = None):
         if roles is None or len(roles) == 0:
             return await self.pool.execute("INSERT INTO ticket_messages VALUES ($1, $2, $3)", channel.id, message.id, ticket_prefix)
         return await self.pool.execute("INSERT INTO ticket_messages VALUES ($1, $2, $3, $4)", channel.id, message.id, ticket_prefix, roles)
@@ -248,7 +248,7 @@ class RoboTim(commands.AutoShardedBot):
     async def error_log(self, error: Exception = None, message: str = None):
         channel = await self.fetch_channel(ERROR_CHANNEL)
         msg = f"<@267410788996743168>: Error at {discord.utils.format_dt(discord.utils.utcnow(), 'R')}\n{error}\n{message}"
-        await channel.send(msg)
+        await channel.send(msg) # type: ignore
 
     @property
     def owner(self) -> discord.User:

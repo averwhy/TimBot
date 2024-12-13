@@ -3,6 +3,7 @@ import typing
 import importlib
 import logging
 import traceback, sys
+from bot import RoboTim
 from discord import app_commands, ui
 from discord.ext import commands, tasks
 from discord.ext.commands import RoleConverter
@@ -14,7 +15,7 @@ ADMIN = 628244086369026118
 log = logging.getLogger("__main__")
 
 class Ticketing(commands.Cog):
-  def __init__(self, bot: commands.Bot) -> None:
+  def __init__(self, bot: RoboTim) -> None:
     self.bot = bot
 
   async def cog_app_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
@@ -63,7 +64,7 @@ class Ticketing(commands.Cog):
   )
   async def setup(self, interaction, title: str, description: str = None, color: str = None,
   thumbnail_url: str = None, image_url: str = None, author: str = None, footer: str = None,
-  ticket_prefix: str = None, *, roles_to_ping: str = None) -> None:
+  ticket_prefix: str = "", *, roles_to_ping: str = None) -> None:
     """Sets up a customizable ticketing system. Admins only."""
     #if (ADMIN not in [r.id for r in interaction.user.roles]) or (interaction.user.id != self.bot.owner_id):
     #  return await interaction.response.send_message("You must be an admin to run this command!", ephemeral=True)
@@ -74,7 +75,7 @@ class Ticketing(commands.Cog):
         return await interaction.response.send_message("The ticket prefix cannot be longer than 4 characters!", ephemeral=True)
       ticket_prefix = ticket_prefix.upper()
     
-    try: color = await commands.ColorConverter().convert(ctx, color)
+    try: color = await commands.ColorConverter().convert(ctx, color) # type: ignore
     except commands.BadArgument:
       return await interaction.response.send_message(f"I couldn't convert the color {color} for you. Try again?", ephemeral=True)
 
@@ -90,7 +91,7 @@ class Ticketing(commands.Cog):
     
     embed = discord.Embed(title=title or 'Open a ticket',
       description=description or 'Need help? Click the button below to open a ticket!',
-      color=color or discord.Color.green(),
+      color=color or discord.Color.green(), # type: ignore
     )
     if thumbnail_url:
       embed.set_thumbnail(url=thumbnail_url)
@@ -103,7 +104,8 @@ class Ticketing(commands.Cog):
     tview = TicketView(self.bot)
 
     msg = await interaction.channel.send(embed=embed, view=tview)
-    await self.bot.add_ticket_button(msg, interaction.channel, ticket_prefix, roles)
+    await self.bot.add_ticket_button(msg, interaction.channel, ticket_prefix, roles) #type: ignore
+    #todo: test above func to see if roles gets passed in properly
     await interaction.response.send_message(f"Done! To remove the ticket embed, use the command `?config remove {msg.id}`", ephemeral=True)
 
   @ticket.command(name="search")
@@ -119,7 +121,7 @@ class Ticketing(commands.Cog):
     # if ADMIN not in interaction.user.roles or interaction.user.id != self.bot.owner_id:
     #   return await interaction.response.send_message("You must be an admin to run this command!", ephemeral=True)
     result = await self.bot.get_tickets(ticket_id=ticket_id, thread_id=thread_id, closed_by=closed_by, closed=closed)
-    if len(result) == 0:
+    if len(result) == 0: # type: ignore
       await interaction.send("No tickets found with those parameters")
     try:
       pages = ViewMenuPages(source=TicketResultSource(result, self.bot), clear_reactions_after=True)
@@ -133,10 +135,10 @@ class Ticketing(commands.Cog):
   async def ticket_for(self, interaction, ticket: str, user: discord.Member):
     """Creates a ticket for a specified user. Arena Operations and Moderator+ only."""
     result = await self.bot.pool.execute("SELECT channelid, messageid FROM ticket_messages WHERE threadprefix = $1", ticket)
-    if result[0].get('channelid') is None:
+    if result[0].get('channelid') is None: # type: ignore
       return await interaction.send("Couldn't find the ticket type from that prefix")
-    channel = self.bot.get_channel(result[0].get('channelid'))
-    message = await channel.fetch_message(result[0].get('messageid'))
+    channel = self.bot.get_channel(result[0].get('channelid')) # type: ignore
+    message = await channel.fetch_message(result[0].get('messageid')) # type: ignore
 
     new_interaction = None
     form_results = []
@@ -158,12 +160,12 @@ class Ticketing(commands.Cog):
     new_thread = await channel.create_thread(name=f'{prefix} | {str(user)}',type=discord.ChannelType.private_thread, reason=f'Support ticket opened by {str(user)} ({user.id})')
     ticket = await self.bot.create_ticket(channel, message, new_thread, user, form_response=form_results)
     result = await self.bot.get_roles_to_ping(message.id)
-    roles = [f"<@&{r}>" for r in result]
+    roles = [f"<@&{r}>" for r in result] # type: ignore
     embed = discord.Embed(title=f"Ticket #{ticket} - {user.name}", description="Support staff will be with you shortly. In the meantime, let us know what you need help with!\nUse `?solved` to close the ticket once you're all set.", color=discord.Color.green(), timestamp=discord.utils.utcnow())
     if new_interaction is not None: # this will run if the ticket has a form
       interaction = new_interaction #if there was a form that was done, we will use the old interaction to create everything needed, then respond using the new inteaction from the form
       for r in form_results:
-        embed.add_field(name=r.label, value=(r.value if len(r.value) != 0 else "*No response*"))
+        embed.add_field(name=r.label, value=(r.value if len(r.value) != 0 else "*No response*")) # type: ignore
     first_message = await new_thread.send(content=f"{' '.join(roles)} <@{user.id}>", embed=embed)
     await self.bot.update_first_message(first_message, new_thread)
     await interaction.response.send_message(f"Your ticket was created in <#{new_thread.id}>!", ephemeral=True)
@@ -176,5 +178,5 @@ class Ticketing(commands.Cog):
   
 
 
-async def setup(bot: commands.Bot) -> None:
+async def setup(bot: RoboTim) -> None:
   await bot.add_cog(Ticketing(bot))
